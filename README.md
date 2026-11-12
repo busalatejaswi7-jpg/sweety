@@ -1,75 +1,125 @@
-# Sweety
+# Sweety - Blood Glucose Tracker
 
-Sweety is a blood glucose journal built with React, Express, and PostgreSQL. Patients can record up to four readings per day, edit or remove them, and review daily and monthly summaries. Doctor accounts can view reports only for patients explicitly assigned to them.
+Sweety is a web application where users can record their daily blood glucose readings and check their reports.
 
-## Requirements
+I built this project using React, Node.js, Express and PostgreSQL.
 
-- Node.js 22.12 or newer
+## Technologies Used
+
+- React and TypeScript
+- Tailwind CSS
+- Node.js and Express
 - PostgreSQL
+- JWT and bcrypt
 
-## Setup
+## Features
 
-1. Create a PostgreSQL database, for example `sweety`.
-2. From the project root, copy the server environment template and edit its values:
+- User signup and login.
+- Add, view, edit and delete glucose readings.
+- Four reading slots: Morning fasting, After breakfast, After lunch and After dinner.
+- Maximum of four readings per day.
+- Validation for glucose values, duplicate slots and future dates.
+- Daily, month-to-date and previous-month reports.
+- Reports show highest, lowest, average and total readings.
 
-   ```powershell
-   Copy-Item server/.env.example server/.env
-   ```
+## Project Setup
 
-3. Initialize a new database:
+### Prerequisites
 
-   ```powershell
-   psql -U postgres -d sweety -v ON_ERROR_STOP=1 -f server/db/schema.sql
-   ```
+- Node.js
+- PostgreSQL
+- npm
 
-   For an existing database, do not rerun the schema file. Apply the additive migration instead:
+### 1. Clone the repository
 
-   ```powershell
-   psql -U postgres -d sweety -v ON_ERROR_STOP=1 -f server/db/migrations/001_add_doctor_assignments.sql
-   ```
-
-4. Install and start the API in one terminal:
-
-   ```powershell
-   cd server
-   npm install
-   npm run dev
-   ```
-
-5. Install and start the client in a second terminal:
-
-   ```powershell
-   cd client
-   npm install
-   npm run dev
-   ```
-
-   Vite prints the local client URL when it starts. The API defaults to `http://localhost:5000`.
-
-## Configuration
-
-`server/.env.example` lists the server settings. Set `DATABASE_URL` to your PostgreSQL connection string and replace the example `JWT_SECRET` with a random value of at least 32 characters. `CLIENT_URL` controls the browser origin accepted by CORS; it defaults to `http://localhost:5173` when unset.
-
-## Tests and checks
-
-Run these from their respective directories:
-
-```powershell
-cd client
-npm run lint
-npm test
-npm run build
+```bash
+git clone YOUR_GITHUB_REPOSITORY_URL
+cd sweety
 ```
 
-```powershell
+### 2. Create the database
+
+Create a PostgreSQL database named `sweety`.
+
+```sql
+CREATE DATABASE sweety;
+```
+
+Run the database schema:
+
+```bash
+psql -U postgres -d sweety -f server/db/schema.sql
+```
+
+### 3. Configure environment variables
+
+Go to the `server` folder and create a `.env` file using `.env.example`.
+
+Add your PostgreSQL connection string and JWT secret.
+
+```env
+PORT=5000
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/sweety
+JWT_SECRET=your_secret_key
+CLIENT_URL=http://localhost:5173
+```
+
+### 4. Run the backend
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+Backend URL: `http://localhost:5000`
+
+### 5. Run the frontend
+
+Open another terminal:
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Open the URL shown in the terminal (usually `http://localhost:5173`).
+
+## Running Tests
+
+Backend:
+
+```bash
 cd server
 npm test
 ```
 
-## Doctor access
+Frontend:
 
-Choose **Doctor** when signing up to submit a doctor application. New applications are stored as `doctor_pending` and cannot access patient data. An administrator must promote the account and assign patients before it can use the doctor portal. The SQL steps are documented in [server/db/migrations/README.md](server/db/migrations/README.md).
+```bash
+cd client
+npm run lint
+npm run build
+```
+
+## Seed Data
+
+To insert a demo user and sample readings into the database:
+
+```bash
+cd server
+npm run seed
+```
+
+Demo login:
+
+- Email: `demo@sweety.com`
+- Password: `Demo@123`
 
 ## Notes
 
-I treated each glucose entry as one of four fixed daily slots and kept values within 40–600 mg/dL. A doctor signup is an application rather than automatic access; patient assignments are checked by the API on every doctor report request. With more time, I would add an admin screen for reviewing doctor applications and assigning patients, plus a repeatable demo seed script. For now, doctor setup is done with the documented SQL, and no demo account is created automatically.
+- I used four fixed reading slots for each day.
+- A user cannot add more than one reading for the same slot and date.
+- I added validation on both the frontend and backend.
+- With more time, I would like to add charts to the reports and write more automated tests.
