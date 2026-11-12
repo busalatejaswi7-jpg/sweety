@@ -1,0 +1,1 @@
+Reserved for future SQL migration scripts. The existing schema remains at `db/schema.sql`.
