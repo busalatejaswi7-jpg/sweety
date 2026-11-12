@@ -6,8 +6,15 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
 import ReportsPage from "./pages/ReportsPage";
+import DoctorPage from "./pages/DoctorPage";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({
+  children,
+  role,
+}: {
+  children: React.ReactNode;
+  role?: "patient" | "doctor";
+}) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -20,6 +27,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (role && user.role !== role) {
+    return <Navigate to={user.role === "doctor" ? "/doctor" : "/dashboard"} replace />;
   }
 
   return children;
@@ -36,7 +47,7 @@ function App() {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute role="patient">
             <DashboardPage />
           </ProtectedRoute>
         }
@@ -45,8 +56,17 @@ function App() {
       <Route
         path="/reports"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute role="patient">
             <ReportsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/doctor"
+        element={
+          <ProtectedRoute role="doctor">
+            <DoctorPage />
           </ProtectedRoute>
         }
       />

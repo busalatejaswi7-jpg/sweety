@@ -3,9 +3,22 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(20) NOT NULL DEFAULT 'patient'
+        CHECK (role IN ('patient', 'doctor')),
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE doctor_patient_assignments (
+    doctor_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    patient_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (doctor_id, patient_id),
+    CONSTRAINT doctor_patient_assignment_not_self CHECK (doctor_id <> patient_id)
+);
+
+CREATE INDEX doctor_patient_assignments_patient_idx
+    ON doctor_patient_assignments (patient_id);
 
 CREATE TABLE readings (
     id SERIAL PRIMARY KEY,

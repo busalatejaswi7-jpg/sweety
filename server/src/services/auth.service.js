@@ -11,7 +11,7 @@ export async function signup({ name, email, password }) {
     const passwordHash = await bcrypt.hash(password, 12);
     try {
         const user = await createUser({ name: name.trim(), email: normalizedEmail, passwordHash });
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
         return { user, token };
     } catch (error) {
         if (error.code === "23505") throw new ApiError(409, "Email already registered.");
@@ -25,6 +25,9 @@ export async function login({ email, password }) {
         throw new ApiError(401, "Invalid email or password.");
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    return { token, user: { id: user.id, name: user.name, email: user.email } };
+    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    return {
+        token,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    };
 }

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import SignupPage from "./SignupPage";
 
@@ -13,9 +13,15 @@ vi.mock("../context/useAuth", () => ({
 function renderSignupPage() {
   return render(
     <MemoryRouter>
+      <CurrentPath />
       <SignupPage />
     </MemoryRouter>,
   );
+}
+
+function CurrentPath() {
+  const location = useLocation();
+  return <output data-testid="current-path">{location.pathname}</output>;
 }
 
 describe("SignupPage", () => {
@@ -53,6 +59,6 @@ describe("SignupPage", () => {
       password: "password123",
       confirmPassword: "password123",
     }));
-    expect(await screen.findByText("Create an account")).toBeInTheDocument();
+    expect(await screen.findByTestId("current-path")).toHaveTextContent("/dashboard");
   });
 });

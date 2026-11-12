@@ -10,7 +10,8 @@ function isUser(value: unknown): value is User {
   return (
     Number.isInteger(user.id) &&
     typeof user.name === "string" &&
-    typeof user.email === "string"
+    typeof user.email === "string" &&
+    (user.role === undefined || user.role === "patient" || user.role === "doctor")
   );
 }
 

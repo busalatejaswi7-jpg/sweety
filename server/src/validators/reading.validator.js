@@ -1,4 +1,5 @@
 import ApiError from "../utils/ApiError.js";
+import { validatePositiveId } from "./common.validator.js";
 
 const allowedSlots = new Set([
     "Morning fasting",
@@ -49,10 +50,5 @@ export function validateReadingPayload(payload) {
 }
 
 export function validateReadingId(value) {
-    const id = typeof value === "number" ? String(value) : value;
-    if (typeof id !== "string" || !/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(Number(id))) {
-        throw new ApiError(400, "Reading ID must be a positive integer.");
-    }
-
-    return Number(id);
+    return validatePositiveId(value, "Reading ID");
 }
