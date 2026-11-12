@@ -1,16 +1,19 @@
 # Sweety - Blood Glucose Tracker
 
-Sweety is a web application where users can record their daily blood glucose readings and check their reports.
+Sweety is a web application that allows users to record their daily blood glucose readings and view reports based on their readings.
 
-I built this project using React, Node.js, Express and PostgreSQL.
+I developed this project using React, Node.js, Express and PostgreSQL.
 
 ## Technologies Used
 
-- React and TypeScript
+- React
+- TypeScript
 - Tailwind CSS
-- Node.js and Express
+- Node.js
+- Express.js
 - PostgreSQL
-- JWT and bcrypt
+- JWT
+- bcrypt
 
 ## Features
 
@@ -18,9 +21,9 @@ I built this project using React, Node.js, Express and PostgreSQL.
 - Add, view, edit and delete glucose readings.
 - Four reading slots: Morning fasting, After breakfast, After lunch and After dinner.
 - Maximum of four readings per day.
-- Validation for glucose values, duplicate slots and future dates.
+- Validation for glucose values, duplicate readings and future dates.
 - Daily, month-to-date and previous-month reports.
-- Reports show highest, lowest, average and total readings.
+- Reports include highest, lowest, average and total number of readings.
 
 ## Project Setup
 
@@ -39,13 +42,13 @@ cd sweety
 
 ### 2. Create the database
 
-Create a PostgreSQL database named `sweety`.
+Create a database named `sweety` in PostgreSQL.
 
 ```sql
 CREATE DATABASE sweety;
 ```
 
-Run the database schema:
+Run the schema file:
 
 ```bash
 psql -U postgres -d sweety -f server/db/schema.sql
@@ -53,9 +56,9 @@ psql -U postgres -d sweety -f server/db/schema.sql
 
 ### 3. Configure environment variables
 
-Go to the `server` folder and create a `.env` file using `.env.example`.
+Create a `.env` file inside the `server` folder using the provided `.env.example` file.
 
-Add your PostgreSQL connection string and JWT secret.
+Update it with your PostgreSQL credentials and JWT secret.
 
 ```env
 PORT=5000
@@ -66,17 +69,19 @@ CLIENT_URL=http://localhost:5173
 
 ### 4. Run the backend
 
+Open a terminal and run:
+
 ```bash
 cd server
 npm install
 npm run dev
 ```
 
-Backend URL: `http://localhost:5000`
+The backend runs at `http://localhost:5000`.
 
 ### 5. Run the frontend
 
-Open another terminal:
+Open another terminal and run:
 
 ```bash
 cd client
@@ -84,18 +89,18 @@ npm install
 npm run dev
 ```
 
-Open the URL shown in the terminal (usually `http://localhost:5173`).
+Open the URL displayed in the terminal. Usually it is `http://localhost:5173`.
 
 ## Running Tests
 
-Backend:
+To run backend tests:
 
 ```bash
 cd server
 npm test
 ```
 
-Frontend:
+To check the frontend:
 
 ```bash
 cd client
@@ -105,21 +110,29 @@ npm run build
 
 ## Seed Data
 
-To insert a demo user and sample readings into the database:
+The project includes a seed script to create a demo user and add sample glucose readings for testing.
 
-```bash
-cd server
-npm run seed
+Configure these values in `server/.env`:
+
+```env
+DEMO_USER_NAME=Sweety Demo
+DEMO_USER_EMAIL=demo@example.com
+DEMO_USER_PASSWORD=choose-a-local-password-at-least-8-characters
 ```
 
-Demo login:
+Run the seed script from the server folder:
 
-- Email: `demo@sweety.com`
-- Password: `Demo@123`
+```bash
+npm run seed:demo
+```
+
+The script can be run again without overwriting the existing demo user's password or sample readings. It also prevents execution in production.
+
+Use the email and password configured in your `.env` file to log in.
 
 ## Notes
 
 - I used four fixed reading slots for each day.
-- A user cannot add more than one reading for the same slot and date.
+- A user can add only one reading for each slot on a particular date.
 - I added validation on both the frontend and backend.
-- With more time, I would like to add charts to the reports and write more automated tests.
+- If I had more time, I would add charts to the reports and write more automated tests.
