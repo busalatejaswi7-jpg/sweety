@@ -3,10 +3,11 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    role VARCHAR(20) NOT NULL DEFAULT 'patient'
-        CHECK (role IN ('patient', 'doctor')),
+    role VARCHAR(20) NOT NULL DEFAULT 'patient',
     password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT users_role_allowed
+        CHECK (role IN ('patient', 'doctor', 'doctor_pending'))
 );
 
 CREATE TABLE doctor_patient_assignments (

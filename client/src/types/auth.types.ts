@@ -2,7 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role?: "patient" | "doctor";
+  role?: "patient" | "doctor" | "doctor_pending";
 }
 
 export interface AuthResponse {
@@ -19,6 +19,7 @@ export interface SignupPayload {
   email: string;
   password: string;
   confirmPassword: string;
+  accountType: "patient" | "doctor";
 }
 
 export interface LoginPayload {

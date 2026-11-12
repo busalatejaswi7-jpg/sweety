@@ -21,6 +21,7 @@ export function validateSignupPayload(body = {}) {
         return "Name, email and password are required.";
     }
     const { name, email, password, confirmPassword } = body;
+    const accountType = body.accountType ?? "patient";
     if (typeof name !== "string" || typeof email !== "string" ||
         typeof password !== "string" || typeof confirmPassword !== "string") {
         return "Name, email and password are required.";
@@ -30,6 +31,9 @@ export function validateSignupPayload(body = {}) {
     const passwordValidationError = passwordError(password);
     if (passwordValidationError) return passwordValidationError;
     if (password !== confirmPassword) return "Passwords do not match.";
+    if (accountType !== "patient" && accountType !== "doctor") {
+        return "Account type must be patient or doctor.";
+    }
     return null;
 }
 

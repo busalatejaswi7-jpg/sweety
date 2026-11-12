@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { getApiErrorMessage } from "../services/apiError";
 
 export default function LoginPage() {
-  const { login, loading } = useAuth();
+  const { login, logout, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
+  const [portal, setPortal] = useState<"patient" | "doctor">(
+    searchParams.get("portal") === "doctor" ? "doctor" : "patient",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,8 +20,24 @@ export default function LoginPage() {
     setError("");
 
     try {
-      await login({ email, password });
-      navigate("/dashboard");
+      const authenticatedUser = await login({ email, password });
+      const actualPortal = authenticatedUser.role ?? "patient";
+      if (actualPortal === "doctor_pending") {
+        logout();
+        setError("Your doctor application is awaiting approval and patient assignment.");
+        return;
+      }
+      if (actualPortal !== portal) {
+        logout();
+        setError(
+          portal === "doctor"
+            ? "This account does not have doctor access."
+            : "This is a doctor account. Choose Doctor to sign in.",
+        );
+        return;
+      }
+
+      navigate(portal === "doctor" ? "/doctor" : "/dashboard");
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, "Login failed. Please try again."));
     }
@@ -42,12 +62,40 @@ export default function LoginPage() {
 
         <section className="mx-auto w-full max-w-md rounded-lg border border-white/10 bg-[#182520] p-6 sm:p-8">
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#f28d75]">Your journal</p>
-          <h2 className="mt-2 font-display text-2xl font-semibold text-[#f4f6ed]">Log in</h2>
-          <p className="mt-2 text-sm text-[#91a197]">Enter your account details to continue.</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-[#f4f6ed]">{portal === "doctor" ? "Doctor login" : "Patient login"}</h2>
+          <p className="mt-2 text-sm text-[#91a197]">
+            {portal === "doctor"
+              ? "Use your assigned doctor account credentials."
+              : "Use the email and password for your patient account."}
+          </p>
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+            <fieldset>
+              <legend className="mb-2 block text-xs font-medium text-[#bac8bc]">Choose account type</legend>
+              <div className="relative grid grid-cols-2 rounded-md border border-white/10 bg-[#101a17] p-1">
+                <span
+                  aria-hidden="true"
+                  className={`absolute bottom-1 top-1 w-[calc(50%-0.25rem)] rounded bg-[#c4f06a] transition-transform duration-200 ${portal === "doctor" ? "translate-x-full" : "translate-x-0"}`}
+                />
+                {(["patient", "doctor"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={portal === option}
+                    onClick={() => {
+                      setPortal(option);
+                      setError("");
+                    }}
+                    className={`relative z-10 rounded px-2 py-2.5 text-xs font-semibold transition sm:px-3 sm:text-sm ${portal === option ? "text-[#16221a]" : "text-[#aab8ad] hover:text-white"}`}
+                  >
+                    {option === "patient" ? "Patient login" : "Doctor login"}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
             <div>
-              <label htmlFor="login-email" className="mb-2 block text-xs font-medium text-[#bac8bc]">Email</label>
+              <label htmlFor="login-email" className="mb-2 block text-xs font-medium text-[#bac8bc]">Email address</label>
               <input
                 id="login-email"
                 type="email"
@@ -81,7 +129,7 @@ export default function LoginPage() {
               disabled={loading}
               className="flex w-full items-center justify-between rounded-md bg-[#c4f06a] px-4 py-3.5 text-sm font-bold text-[#16221a] transition hover:bg-[#d3fa82] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <span>{loading ? "Signing in..." : "Log in"}</span>
+              <span>{loading ? "Signing in..." : portal === "doctor" ? "Log in as doctor" : "Log in as patient"}</span>
               <span aria-hidden="true" className="font-mono text-lg">→</span>
             </button>
           </form>

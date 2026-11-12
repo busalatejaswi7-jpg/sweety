@@ -3,14 +3,15 @@ import jwt from "jsonwebtoken";
 import ApiError from "../utils/ApiError.js";
 import { createUser, findUserByEmail } from "../repositories/auth.repository.js";
 
-export async function signup({ name, email, password }) {
+export async function signup({ name, email, password, accountType = "patient" }) {
     const normalizedEmail = email.trim().toLowerCase();
     const existingUser = await findUserByEmail(normalizedEmail);
     if (existingUser) throw new ApiError(409, "Email already registered.");
 
     const passwordHash = await bcrypt.hash(password, 12);
     try {
-        const user = await createUser({ name: name.trim(), email: normalizedEmail, passwordHash });
+        const role = accountType === "doctor" ? "doctor_pending" : "patient";
+        const user = await createUser({ name: name.trim(), email: normalizedEmail, passwordHash, role });
         const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
         return { user, token };
     } catch (error) {

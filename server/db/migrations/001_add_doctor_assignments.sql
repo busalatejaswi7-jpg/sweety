@@ -1,20 +1,10 @@
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'patient';
 
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM pg_constraint
-        WHERE conname = 'users_role_allowed'
-          AND conrelid = 'users'::regclass
-    ) THEN
-        ALTER TABLE users
-            ADD CONSTRAINT users_role_allowed
-            CHECK (role IN ('patient', 'doctor'));
-    END IF;
-END
-$$;
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_allowed;
+ALTER TABLE users
+    ADD CONSTRAINT users_role_allowed
+    CHECK (role IN ('patient', 'doctor', 'doctor_pending'));
 
 CREATE TABLE IF NOT EXISTS doctor_patient_assignments (
     doctor_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,

@@ -11,7 +11,7 @@ function isUser(value: unknown): value is User {
     Number.isInteger(user.id) &&
     typeof user.name === "string" &&
     typeof user.email === "string" &&
-    (user.role === undefined || user.role === "patient" || user.role === "doctor")
+    (user.role === undefined || user.role === "patient" || user.role === "doctor" || user.role === "doctor_pending")
   );
 }
 
@@ -45,20 +45,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void restoreSession();
   }, []);
 
-  const saveSession = (data: AuthResponse["data"]) => {
+  const saveSession = (data: AuthResponse["data"]): User => {
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
     setUser(data.user);
+    return data.user;
   };
 
   const signup = async (payload: SignupPayload) => {
     const response = await api.post<AuthResponse>("/auth/signup", payload);
-    saveSession(response.data.data);
+    if (response.data.data.user.role === "patient") {
+      saveSession(response.data.data);
+      return;
+    }
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
   };
 
   const login = async (payload: LoginPayload) => {
     const response = await api.post<AuthResponse>("/auth/login", payload);
-    saveSession(response.data.data);
+    return saveSession(response.data.data);
   };
 
   const logout = () => {

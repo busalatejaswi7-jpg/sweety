@@ -5,11 +5,11 @@ import {
   editReading,
   removeReading,
 } from "../controllers/reading.controller.js";
-import { authenticateToken } from "../middlewares/auth.middleware.js";
+import { authenticateToken, requireRole } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.use(authenticateToken);
+router.use(authenticateToken, requireRole("patient"));
 
 router.post("/", addReading);
 router.get("/", getDailyReadings);

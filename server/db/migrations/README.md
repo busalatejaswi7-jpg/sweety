@@ -4,12 +4,13 @@ Apply the additive doctor-role migration to an existing database:
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f db/migrations/001_add_doctor_assignments.sql
 ```
 
-All existing users remain patients. To create a doctor, register both accounts normally, then promote and assign them using a database administrator connection:
+All existing users remain patients. New doctors select Doctor during signup and are created as `doctor_pending`; they cannot access patient or doctor APIs while pending. After verifying the applicant, create the patient account normally and promote/assign accounts using a database administrator connection:
 
 ```sql
 UPDATE users
 SET role = 'doctor'
-WHERE email = lower('doctor@example.com');
+WHERE email = lower('doctor@example.com')
+	AND role = 'doctor_pending';
 
 INSERT INTO doctor_patient_assignments (doctor_id, patient_id)
 SELECT doctor.id, patient.id

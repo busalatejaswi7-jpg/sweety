@@ -4,11 +4,11 @@ import {
   monthToDateReport,
   previousMonthReport,
 } from "../controllers/report.controller.js";
-import { authenticateToken } from "../middlewares/auth.middleware.js";
+import { authenticateToken, requireRole } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.use(authenticateToken);
+router.use(authenticateToken, requireRole("patient"));
 
 router.get("/daily", dailyReport);
 router.get("/month-to-date", monthToDateReport);

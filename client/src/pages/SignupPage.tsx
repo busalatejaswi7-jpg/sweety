@@ -11,11 +11,14 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [accountType, setAccountType] = useState<"patient" | "doctor">("patient");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
@@ -23,7 +26,13 @@ export default function SignupPage() {
     }
 
     try {
-      await signup({ name, email, password, confirmPassword });
+      await signup({ name, email, password, confirmPassword, accountType });
+      if (accountType === "doctor") {
+        setPassword("");
+        setConfirmPassword("");
+        setSuccess("Doctor application received. You can log in after an administrator approves your account and assigns patients.");
+        return;
+      }
       navigate("/dashboard");
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, "Signup failed. Please try again."));
@@ -53,6 +62,30 @@ export default function SignupPage() {
           <p className="mt-2 text-sm text-[#91a197]">A few details, then your journal is ready.</p>
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+            <fieldset>
+              <legend className="mb-2 block text-xs font-medium text-[#bac8bc]">Account type</legend>
+              <div className="relative grid grid-cols-2 rounded-md border border-white/10 bg-[#101a17] p-1">
+                <span
+                  aria-hidden="true"
+                  className={`absolute bottom-1 top-1 w-[calc(50%-0.25rem)] rounded bg-[#c4f06a] transition-transform duration-200 ${accountType === "doctor" ? "translate-x-full" : "translate-x-0"}`}
+                />
+                {(["patient", "doctor"] as const).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    aria-pressed={accountType === type}
+                    onClick={() => setAccountType(type)}
+                    className={`relative z-10 rounded px-2 py-2.5 text-xs font-semibold capitalize transition sm:px-3 sm:text-sm ${accountType === type ? "text-[#16221a]" : "text-[#aab8ad] hover:text-white"}`}
+                  >
+                    {type === "patient" ? "Patient" : "Doctor"}
+                  </button>
+                ))}
+              </div>
+              {accountType === "doctor" && (
+                <p className="mt-2 text-xs leading-5 text-[#91a197]">Doctor accounts need administrator approval and patient assignments before portal access.</p>
+              )}
+            </fieldset>
+
             <div>
               <label htmlFor="signup-name" className="mb-2 block text-xs font-medium text-[#bac8bc]">Full name</label>
               <input
@@ -114,6 +147,7 @@ export default function SignupPage() {
             </div>
 
             {error && <p role="alert" className="rounded-md border border-[#f28d75]/25 bg-[#f28d75]/10 px-3 py-2.5 text-sm text-[#ffad9b]">{error}</p>}
+            {success && <p role="status" className="rounded-md border border-[#c4f06a]/20 bg-[#c4f06a]/[0.07] px-3 py-2.5 text-sm text-[#c4f06a]">{success}</p>}
 
             <button
               type="submit"
@@ -128,6 +162,10 @@ export default function SignupPage() {
           <p className="mt-6 border-t border-white/10 pt-5 text-center text-sm text-[#aab8ad]">
             Already have an account?{" "}
             <Link to="/login" className="font-semibold text-[#c4f06a] hover:text-[#d3fa82]">Log in</Link>
+          </p>
+          <p className="mt-3 text-center text-xs text-[#819087]">
+            Doctor account?{" "}
+            <Link to="/login?portal=doctor" className="font-medium text-[#c4f06a] hover:text-[#d3fa82]">Doctor login</Link>
           </p>
         </section>
       </div>

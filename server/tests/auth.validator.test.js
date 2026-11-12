@@ -14,6 +14,18 @@ describe("auth request validation", () => {
         expect(validateSignupPayload({ name: "Sam", email: "sam@example.com", password: "password123", confirmPassword: "password456" })).toMatch(/do not match/);
     });
 
+    test("accepts doctor applications and rejects unsupported account types", () => {
+        const validDoctorApplication = {
+            name: "Dr. Sam",
+            email: "doctor@example.com",
+            password: "password123",
+            confirmPassword: "password123",
+            accountType: "doctor",
+        };
+        expect(validateSignupPayload(validDoctorApplication)).toBeNull();
+        expect(validateSignupPayload({ ...validDoctorApplication, accountType: "admin" })).toMatch(/account type/i);
+    });
+
     test("rejects passwords beyond bcrypt's byte limit", () => {
         const password = "a".repeat(73);
         expect(validateSignupPayload({ name: "Sam", email: "sam@example.com", password, confirmPassword: password })).toMatch(/72 UTF-8 bytes/);
