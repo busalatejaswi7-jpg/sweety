@@ -22,6 +22,15 @@ export const addReading = async (
   return response.data.data.reading;
 };
 
+export const updateReading = async (
+  id: number,
+  payload: ReadingPayload
+): Promise<Reading> => {
+  const response = await api.put<ReadingResponse>(`/readings/${id}`, payload);
+
+  return response.data.data.reading;
+};
+
 export const removeReading = async (id: number): Promise<void> => {
   await api.delete(`/readings/${id}`);
 };

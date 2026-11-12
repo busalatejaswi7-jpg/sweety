@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
+import { getApiErrorMessage } from "../services/apiError";
 
 export default function SignupPage() {
   const { signup, loading } = useAuth();
@@ -22,10 +23,10 @@ export default function SignupPage() {
     }
 
     try {
-      await signup({ name, email, password });
+      await signup({ name, email, password, confirmPassword });
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Signup failed. Please try again.");
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Signup failed. Please try again."));
     }
   };
 
@@ -58,6 +59,7 @@ export default function SignupPage() {
                 id="signup-name"
                 type="text"
                 required
+                maxLength={100}
                 autoComplete="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -72,6 +74,7 @@ export default function SignupPage() {
                 id="signup-email"
                 type="email"
                 required
+                maxLength={255}
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

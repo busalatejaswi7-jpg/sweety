@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
+import { getApiErrorMessage } from "../services/apiError";
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
@@ -17,8 +18,8 @@ export default function LoginPage() {
     try {
       await login({ email, password });
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Login failed. Please try again."));
     }
   };
 
